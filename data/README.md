@@ -1,9 +1,12 @@
-# Dataset Folder
+## Dataset
 
-The Toronto Crime Indicators dataset is not stored in this repository because it exceeds GitHub's file size limit.
+The Toronto Crime Indicators dataset is not stored directly in this GitHub repository because the file size exceeds GitHub upload limits.
 
-Download the dataset from the shared Google Drive folder and place it in this directory before running the project.
+Team members can download the dataset from the shared Google Drive folder:
 
-Expected file name:
+(https://drive.google.com/file/d/1fGiMMzoqixBSj16cDidPlkNkpz6BdovU/view?usp=sharing)
 
-Toronto_Crime_Indicators.csv
+After downloading, place the file inside the `data/` folder:
+
+```text
+data/Toronto_Crime_Indicators.csv
