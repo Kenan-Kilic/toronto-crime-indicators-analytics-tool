@@ -82,26 +82,16 @@ toronto-crime-analytics-tool/
 │   └── Toronto_Crime_Indicators.csv
 
 ├── src/
-│   ├── data_loader.py
-│   ├── data_cleaning.py
-│   ├── risk_overview.py
-│   ├── neighbourhood_analysis.py
-│   ├── crime_period_analysis.py
-│   ├── crime_type_analysis.py
-│   ├── hotspot_analysis.py
-│   └── police_division_analysis.py
+
 
 ├── dashboard/
-│   └── app.py
+
 
 ├── tests/
-│   ├── test_data_loader.py
-│   ├── test_data_cleaning.py
-│   ├── test_crime_period_analysis.py
-│   └── test_neighbourhood_analysis.py
+
 
 ├── outputs/
-│   └── charts/
+
 
 ├── requirements.txt
 └── README.md
