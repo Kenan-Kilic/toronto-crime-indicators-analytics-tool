@@ -8,5 +8,17 @@ https://drive.google.com/file/d/1fGiMMzoqixBSj16cDidPlkNkpz6BdovU/view?usp=shari
 
 After downloading, place the file inside the `data/` folder:
 
-```text
+
 data/Toronto_Crime_Indicators.csv
+
+## Cleaned Dataset
+
+File Name:
+cleaned_toronto_crime.csv
+
+Google Drive Link:
+(https://drive.google.com/file/d/1j8p9uJs0Ism7_XTonTE193txZdtO0m1a/view?usp=sharing)
+
+Description:
+Generated from US-02: Validate and Clean Crime Data.
+Used as the input dataset for US-03 Crime Risk Overview and subsequent analytics modules.
