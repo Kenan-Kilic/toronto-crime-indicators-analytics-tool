@@ -54,6 +54,32 @@ _LOCAL_DATA = os.path.join(_HERE, "data")
 # Auto-select base
 DATA_BASE = _COLAB_BASE if os.path.exists(_COLAB_BASE) else _LOCAL_DATA
 
+# ── Google Drive auto-download (Streamlit Cloud only) ────────────────────────
+# Downloads cleaned_toronto_crime.csv from Google Drive if not present locally.
+# File ID from: https://drive.google.com/file/d/19KRbMioffzNXTYF8tOci2KALpW3DaypW/view
+_GDRIVE_FILE_ID  = "19KRbMioffzNXTYF8tOci2KALpW3DaypW"
+_CLEANED_CSV     = os.path.join(_LOCAL_DATA, "cleaned_toronto_crime.csv")
+_IS_STREAMLIT_CLOUD = not os.path.exists(_COLAB_BASE)
+
+@st.cache_resource(show_spinner=False)
+def _download_cleaned_csv():
+    """Download cleaned_toronto_crime.csv from Google Drive on first run."""
+    if os.path.exists(_CLEANED_CSV):
+        return True
+    os.makedirs(_LOCAL_DATA, exist_ok=True)
+    try:
+        import urllib.request
+        url = f"https://drive.google.com/uc?export=download&id={_GDRIVE_FILE_ID}&confirm=t"
+        with st.spinner("⬇️ Downloading dataset from Google Drive (~167 MB)... please wait."):
+            urllib.request.urlretrieve(url, _CLEANED_CSV)
+        return True
+    except Exception as e:
+        st.error(f"Failed to download dataset: {e}")
+        return False
+
+if _IS_STREAMLIT_CLOUD:
+    _download_cleaned_csv()
+
 # ── Import project modules ────────────────────────────────────────────────────
 try:
     from US_10_dashboard_filters import get_filter_options, apply_filters, filter_summary
