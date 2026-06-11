@@ -1,0 +1,13 @@
+check,value,status
+rows_before_cleaning,474819,INFO
+rows_after_cleaning,467867,INFO
+rows_removed,6952,INFO
+pct_removed,1.5%,INFO
+nsa_values_replaced,33984,PASS
+zero_coords_removed,6952,PASS
+dtype_checks,OCC_HOUR: int64 | OCC_YEAR: float64,INFO
+all_analyses_use_clean,True,PASS
+time_block_derived,True,PASS
+occ_dow_present,True,PASS
+mci_category_present,True,PASS
+github_pr_evidence,See GitHub repo — QA Lead: Kenan,INFO
