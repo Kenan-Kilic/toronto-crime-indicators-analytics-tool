@@ -223,36 +223,36 @@ if cleaned_df is not None and _FILTERS_AVAILABLE:
     else:
         opts = get_filter_options(cleaned_df)
 
-    sel_neighbourhood = st.sidebar.selectbox(
-        "Neighbourhood", ["All"] + opts["neighbourhoods"], key="nb"
-    )
-    sel_offence = st.sidebar.selectbox(
-        "Offence Type", ["All"] + opts["offence_types"], key="off"
-    )
-    year_list = [int(y) for y in opts["years"]]
-    sel_year = st.sidebar.select_slider(
-        "Year", options=["All"] + year_list, value="All", key="yr"
-    )
-    sel_division = st.sidebar.selectbox(
-        "Division", ["All"] + opts["divisions"], key="div"
-    )
+        sel_neighbourhood = st.sidebar.selectbox(
+            "Neighbourhood", ["All"] + opts["neighbourhoods"], key="nb"
+        )
+        sel_offence = st.sidebar.selectbox(
+            "Offence Type", ["All"] + opts["offence_types"], key="off"
+        )
+        year_list = [int(y) for y in opts["years"]]
+        sel_year = st.sidebar.select_slider(
+            "Year", options=["All"] + year_list, value="All", key="yr"
+        )
+        sel_division = st.sidebar.selectbox(
+            "Division", ["All"] + opts["divisions"], key="div"
+        )
 
-    year_val = None if sel_year == "All" else int(sel_year)
-    filtered_df = apply_filters(
-        cleaned_df,
-        neighbourhood=sel_neighbourhood,
-        offence_type=sel_offence,
-        year=year_val,
-        division=sel_division,
-    )
+        year_val = None if sel_year == "All" else int(sel_year)
+        filtered_df = apply_filters(
+            cleaned_df,
+            neighbourhood=sel_neighbourhood,
+            offence_type=sel_offence,
+            year=year_val,
+            division=sel_division,
+        )
 
-    fsum = filter_summary(filtered_df)
-    st.sidebar.caption(
-        f"✅ **{fsum['total_crimes']:,}** records match  \n"
-        f"Offences: {fsum['unique_offences']}  |  "
-        f"Hoods: {fsum['unique_neighbourhoods']}"
-    )
-    _FILTERS_ACTIVE = True
+        fsum = filter_summary(filtered_df)
+        st.sidebar.caption(
+            f"✅ **{fsum['total_crimes']:,}** records match  \n"
+            f"Offences: {fsum['unique_offences']}  |  "
+            f"Hoods: {fsum['unique_neighbourhoods']}"
+        )
+        _FILTERS_ACTIVE = True
 else:
     filtered_df = cleaned_df
     _FILTERS_ACTIVE = False
