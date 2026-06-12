@@ -50,7 +50,7 @@ if _HERE not in sys.path:
 # Google Drive path (Colab only — ignored on Streamlit Cloud)
 _COLAB_BASE = "/content/drive/MyDrive/Colab Notebooks"
 # Streamlit Cloud / local path
-_LOCAL_DATA = os.path.join(_HERE, "data")
+_LOCAL_DATA = os.path.join(_HERE, "..", "data")
 # Auto-select base
 DATA_BASE = _COLAB_BASE if os.path.exists(_COLAB_BASE) else _LOCAL_DATA
 
@@ -75,9 +75,16 @@ def _download_cleaned_csv():
             pass
     os.makedirs(_LOCAL_DATA, exist_ok=True)
     try:
-        import gdown
+        import requests, io
         url = f"https://drive.google.com/uc?id={_GDRIVE_FILE_ID}"
-        gdown.download(url=url, output=_CLEANED_CSV, quiet=True, fuzzy=True)
+        session = requests.Session()
+r = session.get(url, stream=True)
+token = next((v for k,v in r.cookies.items() if 'download_warning' in k), None)
+if token:
+    r = session.get(url, params={'confirm': token}, stream=True)
+with open(_CLEANED_CSV, 'wb') as f:
+    for chunk in r.iter_content(32768):
+        if chunk: f.write(chunk)
         return True
     except Exception:
         return False
