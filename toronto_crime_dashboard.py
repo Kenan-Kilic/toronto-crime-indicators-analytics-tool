@@ -459,6 +459,7 @@ PAGE_LABELS = {
     "🚓 Police Divisions":       "Divisions",
     "🗺️ Hotspot Map":            "Hotspot Map",
     "📈 Year-over-Year Trend":   "YoY Trend",
+    "🖼️ Saved Visuals":          "Saved Visuals",
 }
 page_icon = st.sidebar.radio("Navigate", list(PAGE_LABELS.keys()))
 page = PAGE_LABELS[page_icon]
@@ -929,3 +930,68 @@ elif page == "YoY Trend":
 
     with st.expander("📋 Data table"):
         st.dataframe(trend, use_container_width=True)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PAGE ── SAVED VISUALS
+# ─────────────────────────────────────────────────────────────────────────────
+elif page == "Saved Visuals":
+    st.title("🖼️ Saved Visuals")
+    st.caption("All pre-generated charts from the full pipeline (US-04 through US-15)")
+
+    # Define visual groups with labels
+    VISUAL_GROUPS = {
+        "🏘️ US-04 · Neighbourhoods": [
+            ("us04_neighbourhood_ranking.png", "Top-10 High-Risk Neighbourhoods"),
+        ],
+        "⏰ US-05 · Peak Crime Periods": [
+            ("us05_hourly_bar.png",       "Crime by Hour (0–23)"),
+            ("us05_monthly_bar.png",      "Crime by Month"),
+            ("us05_yearly_trend.png",     "Crime by Year"),
+            ("us05_clock_polar.png",      "Clock-Rose (All Hours)"),
+            ("us05_dow_clock_grid.png",   "Day-of-Week Clock Grid"),
+            ("us05_timeblock_weekly.png", "Time-Block Weekly Patterns"),
+        ],
+        "🔎 US-06 · Crime Type Distribution": [
+            ("us06_offence_distribution.png",  "Top-15 Offences"),
+            ("us06_category_pie.png",          "MCI Category Pie"),
+            ("us06_category_clock_grid.png",   "Category × Day Clock Grid"),
+        ],
+        "📍 US-07 · Crime Hotspots": [
+            ("us07_hotspot_scatter.png",       "Hotspot Scatter Map"),
+            ("us07_area_timeblock_clock.png",  "Area × Time-Block Clock"),
+        ],
+        "🚓 US-08 · Police Divisions": [
+            ("us08_division_ranking.png", "Division Ranking"),
+            ("us08_division_pie.png",     "Division Pie Chart"),
+        ],
+        "📈 US-14 · Year-over-Year Trend": [
+            ("us14_yoy_trend.png",        "YoY Crime Trend"),
+            ("us14_yoy_pct_change.png",   "YoY % Change"),
+        ],
+        "🔬 US-15 · QA & Temporal Patterns": [
+            ("us15_clock_polar.png",          "Clock-Rose (QA)"),
+            ("us15_dow_clock_grid.png",       "DOW Clock Grid (QA)"),
+            ("us15_timeblock_weekly.png",     "Time-Block Weekly (QA)"),
+            ("us15_category_clock_grid.png",  "Category Clock Grid (QA)"),
+        ],
+    }
+
+    # Path to outputs folder (GitHub-committed static files)
+    _OUTPUTS_DIR = os.path.join(_HERE, "outputs")
+
+    for group_title, visuals in VISUAL_GROUPS.items():
+        # Check if any file in this group exists
+        available = [(fname, label) for fname, label in visuals
+                     if os.path.exists(os.path.join(_OUTPUTS_DIR, fname))]
+        if not available:
+            continue
+
+        st.subheader(group_title)
+        # Show in 2-column grid
+        for i in range(0, len(available), 2):
+            cols = st.columns(2)
+            for j, (fname, label) in enumerate(available[i:i+2]):
+                fpath = os.path.join(_OUTPUTS_DIR, fname)
+                with cols[j]:
+                    st.image(fpath, caption=label, use_container_width=True)
+        st.divider()
