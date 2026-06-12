@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 import gdown
 
-GDRIVE_FILE_ID = "1fGIMMzoqixBSj16cDidPlkNkpz6BdovU"
+GDRIVE_FILE_ID = "19KRbMioffzNXTYF8tOci2KALpW3DaypW"
 
 def load_dataset(output_path: str) -> pd.DataFrame:
     url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
