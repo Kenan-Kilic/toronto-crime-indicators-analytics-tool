@@ -86,7 +86,7 @@ def _download_cleaned_csv():
         st.error(f"Failed to download dataset: {e}")
         return False
 
-if _IS_STREAMLIT_CLOUD:
+if True:
     _download_cleaned_csv()
 
 # ── Import project modules ────────────────────────────────────────────────────
