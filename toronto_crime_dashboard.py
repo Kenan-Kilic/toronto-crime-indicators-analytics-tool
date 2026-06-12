@@ -382,6 +382,24 @@ def run_full_pipeline(raw_df, progress_bar, status_text):
         return None
 
 # ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# HELPER: render PNG gallery from outputs/
+# ─────────────────────────────────────────────────────────────────────────────
+def _show_visuals(files_labels):
+    """Display a list of (filename, caption) pairs as a 2-col image gallery."""
+    _OUTPUTS_DIR = os.path.join(_HERE, "outputs")
+    available = [(f, l) for f, l in files_labels
+                 if os.path.exists(os.path.join(_OUTPUTS_DIR, f))]
+    if not available:
+        st.info("No saved images found. Commit outputs/ PNGs to GitHub.")
+        return
+    for i in range(0, len(available), 2):
+        cols = st.columns(2)
+        for j, (fname, label) in enumerate(available[i:i+2]):
+            with cols[j]:
+                st.image(os.path.join(_OUTPUTS_DIR, fname),
+                         caption=label, use_container_width=True)
+
 # AUTO-STARTUP: Download cleaned CSV from Google Drive and run pipeline
 # ─────────────────────────────────────────────────────────────────────────────
 _GDRIVE_CLEANED_ID = "19KRbMioffzNXTYF8tOci2KALpW3DaypW"
@@ -451,18 +469,30 @@ else:
 st.sidebar.divider()
 
 PAGE_LABELS = {
-    "⚙️ Run Pipeline":           "Pipeline",
-    "📊 Overview":               "Overview",
-    "🏘️ Neighbourhoods":         "Neighbourhoods",
-    "🔎 Crime Types":            "Crime Types",
-    "⏰ Peak Periods":           "Peak Periods",
-    "🚓 Police Divisions":       "Divisions",
-    "🗺️ Hotspot Map":            "Hotspot Map",
-    "📈 Year-over-Year Trend":   "YoY Trend",
-    "🖼️ Saved Visuals":          "Saved Visuals",
+    "⚙️ Run Pipeline":               "Pipeline",
+    "📊 Overview":                   "Overview",
+    "🏘️ Neighbourhoods":             "Neighbourhoods",
+    "🔎 Crime Types":                "Crime Types",
+    "⏰ Peak Periods":               "Peak Periods",
+    "🚓 Police Divisions":           "Divisions",
+    "🗺️ Hotspot Map":                "Hotspot Map",
+    "📈 Year-over-Year Trend":       "YoY Trend",
+    "── VISUALS ──":                 "_divider_",
+    "🏘️ US-04 · Neighbourhoods":    "VIS_US04",
+    "⏰ US-05 · Peak Periods":       "VIS_US05",
+    "🔎 US-06 · Crime Types":        "VIS_US06",
+    "📍 US-07 · Hotspots":           "VIS_US07",
+    "🚓 US-08 · Divisions":          "VIS_US08",
+    "📈 US-14 · YoY Trend":          "VIS_US14",
+    "🔬 US-15 · QA & Temporal":      "VIS_US15",
 }
-page_icon = st.sidebar.radio("Navigate", list(PAGE_LABELS.keys()))
+# Build nav options, inserting a disabled-looking separator
+_nav_options = list(PAGE_LABELS.keys())
+page_icon = st.sidebar.radio("Navigate", _nav_options,
+    format_func=lambda x: x if x != "── VISUALS ──" else "───────────────")
 page = PAGE_LABELS[page_icon]
+if page == "_divider_":
+    st.stop()
 
 # ── Global Filters ────────────────────────────────────────────────────────────
 cleaned_df  = st.session_state.cleaned_df
@@ -932,66 +962,84 @@ elif page == "YoY Trend":
         st.dataframe(trend, use_container_width=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PAGE ── SAVED VISUALS
+# PAGE ── VIS_US04
 # ─────────────────────────────────────────────────────────────────────────────
-elif page == "Saved Visuals":
-    st.title("🖼️ Saved Visuals")
-    st.caption("All pre-generated charts from the full pipeline (US-04 through US-15)")
+elif page == "VIS_US04":
+    st.title("🏘️ US-04 · High-Risk Neighbourhoods")
+    st.caption("Pre-generated visuals from the master pipeline")
+    _show_visuals([
+        ("us04_neighbourhood_ranking.png", "Top-10 High-Risk Neighbourhoods — bar chart"),
+    ])
 
-    # Define visual groups with labels
-    VISUAL_GROUPS = {
-        "🏘️ US-04 · Neighbourhoods": [
-            ("us04_neighbourhood_ranking.png", "Top-10 High-Risk Neighbourhoods"),
-        ],
-        "⏰ US-05 · Peak Crime Periods": [
-            ("us05_hourly_bar.png",       "Crime by Hour (0–23)"),
-            ("us05_monthly_bar.png",      "Crime by Month"),
-            ("us05_yearly_trend.png",     "Crime by Year"),
-            ("us05_clock_polar.png",      "Clock-Rose (All Hours)"),
-            ("us05_dow_clock_grid.png",   "Day-of-Week Clock Grid"),
-            ("us05_timeblock_weekly.png", "Time-Block Weekly Patterns"),
-        ],
-        "🔎 US-06 · Crime Type Distribution": [
-            ("us06_offence_distribution.png",  "Top-15 Offences"),
-            ("us06_category_pie.png",          "MCI Category Pie"),
-            ("us06_category_clock_grid.png",   "Category × Day Clock Grid"),
-        ],
-        "📍 US-07 · Crime Hotspots": [
-            ("us07_hotspot_scatter.png",       "Hotspot Scatter Map"),
-            ("us07_area_timeblock_clock.png",  "Area × Time-Block Clock"),
-        ],
-        "🚓 US-08 · Police Divisions": [
-            ("us08_division_ranking.png", "Division Ranking"),
-            ("us08_division_pie.png",     "Division Pie Chart"),
-        ],
-        "📈 US-14 · Year-over-Year Trend": [
-            ("us14_yoy_trend.png",        "YoY Crime Trend"),
-            ("us14_yoy_pct_change.png",   "YoY % Change"),
-        ],
-        "🔬 US-15 · QA & Temporal Patterns": [
-            ("us15_clock_polar.png",          "Clock-Rose (QA)"),
-            ("us15_dow_clock_grid.png",       "DOW Clock Grid (QA)"),
-            ("us15_timeblock_weekly.png",     "Time-Block Weekly (QA)"),
-            ("us15_category_clock_grid.png",  "Category Clock Grid (QA)"),
-        ],
-    }
+# ─────────────────────────────────────────────────────────────────────────────
+# PAGE ── VIS_US05
+# ─────────────────────────────────────────────────────────────────────────────
+elif page == "VIS_US05":
+    st.title("⏰ US-05 · Peak Crime Periods")
+    st.caption("Pre-generated visuals from the master pipeline")
+    _show_visuals([
+        ("us05_hourly_bar.png",       "Crime by Hour (0–23)"),
+        ("us05_monthly_bar.png",      "Crime by Month"),
+        ("us05_yearly_trend.png",     "Crime by Year"),
+        ("us05_clock_polar.png",      "Clock-Rose — All Hours"),
+        ("us05_dow_clock_grid.png",   "Day-of-Week Clock Grid (7 panels)"),
+        ("us05_timeblock_weekly.png", "Time-Block Weekly Patterns (3 shifts)"),
+    ])
 
-    # Path to outputs folder (GitHub-committed static files)
-    _OUTPUTS_DIR = os.path.join(_HERE, "outputs")
+# ─────────────────────────────────────────────────────────────────────────────
+# PAGE ── VIS_US06
+# ─────────────────────────────────────────────────────────────────────────────
+elif page == "VIS_US06":
+    st.title("🔎 US-06 · Crime Type Distribution")
+    st.caption("Pre-generated visuals from the master pipeline")
+    _show_visuals([
+        ("us06_offence_distribution.png", "Top-15 Offence Types"),
+        ("us06_category_pie.png",         "MCI Crime Category Pie"),
+        ("us06_category_clock_grid.png",  "Category × Day-of-Week Clock Grid"),
+    ])
 
-    for group_title, visuals in VISUAL_GROUPS.items():
-        # Check if any file in this group exists
-        available = [(fname, label) for fname, label in visuals
-                     if os.path.exists(os.path.join(_OUTPUTS_DIR, fname))]
-        if not available:
-            continue
+# ─────────────────────────────────────────────────────────────────────────────
+# PAGE ── VIS_US07
+# ─────────────────────────────────────────────────────────────────────────────
+elif page == "VIS_US07":
+    st.title("📍 US-07 · Crime Hotspots")
+    st.caption("Pre-generated visuals from the master pipeline")
+    _show_visuals([
+        ("us07_hotspot_scatter.png",      "Hotspot Scatter Map"),
+        ("us07_area_timeblock_clock.png", "Top-4 Areas × Time-Block Clock Grid"),
+    ])
 
-        st.subheader(group_title)
-        # Show in 2-column grid
-        for i in range(0, len(available), 2):
-            cols = st.columns(2)
-            for j, (fname, label) in enumerate(available[i:i+2]):
-                fpath = os.path.join(_OUTPUTS_DIR, fname)
-                with cols[j]:
-                    st.image(fpath, caption=label, use_container_width=True)
-        st.divider()
+# ─────────────────────────────────────────────────────────────────────────────
+# PAGE ── VIS_US08
+# ─────────────────────────────────────────────────────────────────────────────
+elif page == "VIS_US08":
+    st.title("🚓 US-08 · Police Division Activity")
+    st.caption("Pre-generated visuals from the master pipeline")
+    _show_visuals([
+        ("us08_division_ranking.png", "Division Crime Ranking — bar chart"),
+        ("us08_division_pie.png",     "Division Crime Share — pie chart"),
+    ])
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PAGE ── VIS_US14
+# ─────────────────────────────────────────────────────────────────────────────
+elif page == "VIS_US14":
+    st.title("📈 US-14 · Year-over-Year Trend")
+    st.caption("Pre-generated visuals from the master pipeline")
+    _show_visuals([
+        ("us14_yoy_trend.png",      "YoY Crime Trend — line chart (peak/lowest annotated)"),
+        ("us14_yoy_pct_change.png", "YoY % Change — bar chart"),
+    ])
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PAGE ── VIS_US15
+# ─────────────────────────────────────────────────────────────────────────────
+elif page == "VIS_US15":
+    st.title("🔬 US-15 · QA & Temporal Patterns")
+    st.caption("Pre-generated visuals from the master pipeline")
+    _show_visuals([
+        ("us15_clock_polar.png",         "Clock-Rose (QA validation)"),
+        ("us15_dow_clock_grid.png",      "Day-of-Week Clock Grid (QA)"),
+        ("us15_timeblock_weekly.png",    "Time-Block Weekly Patterns (QA)"),
+        ("us15_category_clock_grid.png", "Category × Day Clock Grid (QA)"),
+    ])
