@@ -50,7 +50,7 @@ if _HERE not in sys.path:
 # Google Drive path (Colab only — ignored on Streamlit Cloud)
 _COLAB_BASE = "/content/drive/MyDrive/Colab Notebooks"
 # Streamlit Cloud / local path
-_LOCAL_DATA = os.path.join(_HERE, "..", "data")
+_LOCAL_DATA = os.path.join(_HERE, "data")
 # Auto-select base
 DATA_BASE = _COLAB_BASE if os.path.exists(_COLAB_BASE) else _LOCAL_DATA
 
@@ -75,16 +75,9 @@ def _download_cleaned_csv():
             pass
     os.makedirs(_LOCAL_DATA, exist_ok=True)
     try:
-        import requests, io
+        import gdown
         url = f"https://drive.google.com/uc?id={_GDRIVE_FILE_ID}"
-        session = requests.Session()
-r = session.get(url, stream=True)
-token = next((v for k,v in r.cookies.items() if 'download_warning' in k), None)
-if token:
-    r = session.get(url, params={'confirm': token}, stream=True)
-with open(_CLEANED_CSV, 'wb') as f:
-    for chunk in r.iter_content(32768):
-        if chunk: f.write(chunk)
+        gdown.download(url=url, output=_CLEANED_CSV, quiet=True, fuzzy=True)
         return True
     except Exception:
         return False
@@ -174,6 +167,10 @@ st.markdown("""
 # LOAD CLEANED DATASET (needed for live filters)
 # ─────────────────────────────────────────────────────────────────────────────
 cleaned_df = load_csv(_p("cleaned_toronto_crime.csv"))
+if cleaned_df is None:
+    p1, p2 = _p("crime_part1.csv"), _p("crime_part2.csv")
+    if os.path.exists(p1) and os.path.exists(p2):
+        cleaned_df = pd.concat([pd.read_csv(p1, low_memory=False), pd.read_csv(p2, low_memory=False)], ignore_index=True)
 
 # Normalize column names — strip whitespace and fix encoding issues
 if cleaned_df is not None:
