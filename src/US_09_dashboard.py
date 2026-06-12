@@ -63,15 +63,14 @@ _IS_STREAMLIT_CLOUD = not os.path.exists(_COLAB_BASE)
 
 @st.cache_resource(show_spinner=False)
 def _download_cleaned_csv():
-    """Download cleaned_toronto_crime.csv from Google Drive on first run."""
+    """Download cleaned_toronto_crime.csv from Google Drive using gdown."""
     if os.path.exists(_CLEANED_CSV):
         return True
     os.makedirs(_LOCAL_DATA, exist_ok=True)
     try:
-        import urllib.request
-        url = f"https://drive.google.com/uc?export=download&id={_GDRIVE_FILE_ID}&confirm=t"
+        import gdown
         with st.spinner("⬇️ Downloading dataset from Google Drive (~167 MB)... please wait."):
-            urllib.request.urlretrieve(url, _CLEANED_CSV)
+            gdown.download(id=_GDRIVE_FILE_ID, output=_CLEANED_CSV, quiet=False)
         return True
     except Exception as e:
         st.error(f"Failed to download dataset: {e}")
@@ -203,7 +202,16 @@ st.sidebar.divider()
 st.sidebar.subheader("🔧 Global Filters (US-10)")
 
 if cleaned_df is not None and _FILTERS_AVAILABLE:
-    opts = get_filter_options(cleaned_df)
+    # Debug: show actual columns if NEIGHBOURHOOD_158 missing
+    required_cols = ["NEIGHBOURHOOD_158", "OFFENCE", "OCC_YEAR", "DIVISION"]
+    missing_cols = [c for c in required_cols if c not in cleaned_df.columns]
+    if missing_cols:
+        st.sidebar.error(f"Missing columns: {missing_cols}")
+        st.sidebar.write("Available:", list(cleaned_df.columns[:10]))
+        filtered_df = cleaned_df
+        _FILTERS_ACTIVE = False
+    else:
+        opts = get_filter_options(cleaned_df)
 
     sel_neighbourhood = st.sidebar.selectbox(
         "Neighbourhood", ["All"] + opts["neighbourhoods"], key="nb"
