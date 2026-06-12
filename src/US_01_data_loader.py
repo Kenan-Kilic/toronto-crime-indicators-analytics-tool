@@ -4,24 +4,15 @@
 
 import pandas as pd
 from pathlib import Path
-import requests
-import io
+import gdown
 
 GDRIVE_FILE_ID = "1fGIMMzoqixBSj16cDidPlkNkpz6BdovU"
 
 def load_dataset(output_path: str) -> pd.DataFrame:
-    local = Path(output_path)
-    
-    if local.exists() and local.stat().st_size > 1000:
-        # Local file exists and is not an LFS pointer
-        df = pd.read_csv(local, low_memory=False)
-    else:
-        # Download from Google Drive
-        url = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        df = pd.read_csv(io.BytesIO(response.content), low_memory=False)
-    
+    url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
+    downloaded = gdown.download(url, quiet=False, fuzzy=True)
+    df = pd.read_csv(downloaded, low_memory=False)
+
     if df.empty:
         raise ValueError("Dataset is empty.")
     print(f"[US-01] Dataset loaded | rows={len(df):,} cols={df.shape[1]}")
