@@ -378,13 +378,54 @@ def run_full_pipeline(raw_df, progress_bar, status_text):
         return None
 
 # ─────────────────────────────────────────────────────────────────────────────
-# AUTO-LOAD cleaned CSV from disk if already present (from a previous run)
+# AUTO-STARTUP: Download cleaned CSV from Google Drive and run pipeline
 # ─────────────────────────────────────────────────────────────────────────────
-if st.session_state.cleaned_df is None:
-    _cached = load_csv(_dp(_CLEANED_CSV_NAME))
-    if _cached is not None:
-        st.session_state.cleaned_df = _cached
+_GDRIVE_CLEANED_ID = "19KRbMioffzNXTYF8tOci2KALpW3DaypW"
+
+def _auto_startup():
+    """
+    On first load:
+    1. Try to load cleaned CSV from disk (fast path — already processed).
+    2. If not found, download from Google Drive and run the full pipeline.
+    """
+    # Fast path: cleaned CSV already on disk
+    cached = load_csv(_dp(_CLEANED_CSV_NAME))
+    if cached is not None:
+        st.session_state.cleaned_df = cached
         st.session_state.pipeline_ran = True
+        return
+
+    # Slow path: download from Google Drive then run pipeline
+    dest = _dp(_CLEANED_CSV_NAME)
+    placeholder = st.empty()
+    try:
+        placeholder.info("⬇️ First run — downloading dataset from Google Drive…")
+        import gdown
+        url = f"https://drive.google.com/uc?id={_GDRIVE_CLEANED_ID}"
+        gdown.download(url=url, output=dest, quiet=True, fuzzy=True)
+
+        if os.path.exists(dest):
+            load_csv.clear()
+            df = pd.read_csv(dest, low_memory=False)
+            df.columns = df.columns.str.strip()
+            # Rename neighbourhood variants
+            for variant in ["NEIGHBOURHOOD_158 ", "NEIGHBOURHOOD158", "neighbourhood_158"]:
+                if variant in df.columns:
+                    df = df.rename(columns={variant: "NEIGHBOURHOOD_158"})
+            st.session_state.cleaned_df = df
+            st.session_state.pipeline_ran = True
+            placeholder.success(f"✅ Dataset loaded — {df.shape[0]:,} records ready.")
+        else:
+            placeholder.warning(
+                "⚠️ Auto-download failed. Go to **⚙️ Run Pipeline** to load data manually."
+            )
+    except Exception as e:
+        placeholder.warning(
+            f"⚠️ Auto-download error: {e}. Go to **⚙️ Run Pipeline** to load data manually."
+        )
+
+if st.session_state.cleaned_df is None:
+    _auto_startup()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SIDEBAR
