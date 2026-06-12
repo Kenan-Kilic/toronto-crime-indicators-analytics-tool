@@ -136,9 +136,13 @@ def _us02_clean(raw_df):
         "4": "Friday",  "5": "Saturday", "6": "Sunday",
     }
     if "OCC_DOW" in df.columns:
-        df["OCC_DOW"] = (df["OCC_DOW"].astype(str).str.strip()
-                         .str[:3].str.lower()
-                         .map(lambda x: dow_map.get(x, x.capitalize())))
+        def _map_dow(x):
+            s = str(x).strip()
+            if s.lower() in ("nan", "none", ""):
+                return np.nan
+            key = s[:3].lower()
+            return dow_map.get(key, s.capitalize())
+        df["OCC_DOW"] = df["OCC_DOW"].map(_map_dow)
 
     # Derive TIME_BLOCK from OCC_HOUR
     if "OCC_HOUR" in df.columns and "TIME_BLOCK" not in df.columns:
@@ -402,7 +406,7 @@ def _auto_startup():
         placeholder.info("⬇️ First run — downloading dataset from Google Drive…")
         import gdown
         url = f"https://drive.google.com/uc?id={_GDRIVE_CLEANED_ID}"
-        gdown.download(url=url, output=dest, quiet=True, fuzzy=True)
+        gdown.download(url=url, output=dest, quiet=True)
 
         if os.path.exists(dest):
             load_csv.clear()
@@ -527,7 +531,7 @@ if page == "Pipeline":
                 import gdown
                 url = f"https://drive.google.com/uc?id={gdrive_id}"
                 with st.spinner("Downloading…"):
-                    gdown.download(url=url, output=dest, quiet=True, fuzzy=True)
+                    gdown.download(url=url, output=dest, quiet=True)
                 if os.path.exists(dest):
                     raw = pd.read_csv(dest, low_memory=False)
                     raw.columns = raw.columns.str.strip()
