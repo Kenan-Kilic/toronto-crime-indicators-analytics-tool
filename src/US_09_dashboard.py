@@ -164,6 +164,17 @@ st.markdown("""
 # ─────────────────────────────────────────────────────────────────────────────
 cleaned_df = load_csv(_p("cleaned_toronto_crime.csv"))
 
+# Normalize column names — strip whitespace and fix encoding issues
+if cleaned_df is not None:
+    cleaned_df.columns = cleaned_df.columns.str.strip()
+    # Rename common variants to expected names
+    col_renames = {
+        "NEIGHBOURHOOD_158 ": "NEIGHBOURHOOD_158",
+        "NEIGHBOURHOOD158": "NEIGHBOURHOOD_158",
+        "neighbourhood_158": "NEIGHBOURHOOD_158",
+    }
+    cleaned_df = cleaned_df.rename(columns=col_renames)
+
 # ─────────────────────────────────────────────────────────────────────────────
 # SIDEBAR
 # ─────────────────────────────────────────────────────────────────────────────
