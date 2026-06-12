@@ -61,7 +61,7 @@ _GDRIVE_FILE_ID  = "19KRbMioffzNXTYF8tOci2KALpW3DaypW"
 _CLEANED_CSV     = os.path.join(_LOCAL_DATA, "cleaned_toronto_crime.csv")
 _IS_STREAMLIT_CLOUD = not os.path.exists(_COLAB_BASE)
 
-@st.cache_resource(show_spinner=False)
+
 def _download_cleaned_csv():
     """Download cleaned_toronto_crime.csv from Google Drive using gdown with fuzzy=True."""
     if os.path.exists(_CLEANED_CSV):
