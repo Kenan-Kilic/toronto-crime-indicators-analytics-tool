@@ -63,14 +63,24 @@ _IS_STREAMLIT_CLOUD = not os.path.exists(_COLAB_BASE)
 
 @st.cache_resource(show_spinner=False)
 def _download_cleaned_csv():
-    """Download cleaned_toronto_crime.csv from Google Drive using gdown."""
+    """Download cleaned_toronto_crime.csv from Google Drive using gdown with fuzzy=True."""
     if os.path.exists(_CLEANED_CSV):
-        return True
+        # Verify it is a real CSV and not an HTML error page
+        try:
+            with open(_CLEANED_CSV, "r", encoding="utf-8", errors="ignore") as f:
+                first_line = f.readline()
+            if "<html" in first_line.lower():
+                os.remove(_CLEANED_CSV)
+            else:
+                return True
+        except Exception:
+            pass
     os.makedirs(_LOCAL_DATA, exist_ok=True)
     try:
         import gdown
+        url = f"https://drive.google.com/uc?id={_GDRIVE_FILE_ID}"
         with st.spinner("⬇️ Downloading dataset from Google Drive (~167 MB)... please wait."):
-            gdown.download(id=_GDRIVE_FILE_ID, output=_CLEANED_CSV, quiet=False)
+            gdown.download(url=url, output=_CLEANED_CSV, quiet=False, fuzzy=True)
         return True
     except Exception as e:
         st.error(f"Failed to download dataset: {e}")
