@@ -1,7 +1,7 @@
 # Toronto Crime Analytics Tool
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-red?logo=streamlit&logoColor=white)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://toronto-crime-analytics.streamlit.app/)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Agile](https://img.shields.io/badge/Methodology-Agile%20%7C%20Scrum-orange)
 ![Course](https://img.shields.io/badge/UNFC-CPSC--620--3-blueviolet)
