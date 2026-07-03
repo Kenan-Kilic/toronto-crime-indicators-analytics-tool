@@ -58,6 +58,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ── Vercel Web Analytics ──────────────────────────────────────────────────────
+st.components.v1.html("""
+<script>
+    window.va = window.va || function () {
+        (window.vaq = window.vaq || []).push(arguments);
+    };
+</script>
+<script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+""", height=0)
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PATHS & SESSION STATE INIT
 # ─────────────────────────────────────────────────────────────────────────────
@@ -736,7 +746,7 @@ elif page == "Crime Types":
         ax2.set_title("MCI Category Distribution", fontsize=13, fontweight="bold")
         plt.tight_layout(); st.pyplot(fig2); plt.close(fig2)
 
-# ─────────────────────────────────────────────────────────────────────────────
+# ─────────���───────────────────────────────────────────────────────────────────
 # PAGE ── PEAK PERIODS
 # ─────────────────────────────────────────────────────────────────────────────
 elif page == "Peak Periods":
