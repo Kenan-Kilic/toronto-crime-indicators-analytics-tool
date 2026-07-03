@@ -36,6 +36,41 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ── Vercel Speed Insights Integration ─────────────────────────────────────────
+# Inject Vercel Speed Insights script for performance monitoring
+# This will work when deployed to Vercel (https://vercel.com/docs/speed-insights)
+import streamlit.components.v1 as components
+
+speed_insights_script = """
+<script>
+  (function() {
+    // Only inject if not already loaded
+    if (window.si) return;
+    
+    // Initialize queue for Speed Insights
+    window.si = function(...params) {
+      window.siq = window.siq || [];
+      window.siq.push(params);
+    };
+    
+    // Create and inject the Speed Insights script
+    var script = document.createElement('script');
+    script.src = '/_vercel/speed-insights/script.js';
+    script.defer = true;
+    script.dataset.sdkn = '@vercel/speed-insights';
+    script.dataset.sdkv = '2.0.0';
+    
+    script.onerror = function() {
+      console.log('[Vercel Speed Insights] Script not loaded - this is expected in local development. Speed Insights will work when deployed to Vercel.');
+    };
+    
+    document.head.appendChild(script);
+  })();
+</script>
+"""
+
+components.html(speed_insights_script, height=0, width=0)
+
 # ── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
